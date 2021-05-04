@@ -11,5 +11,5 @@ Available on Docker Hub as [geosysx/geostack](https://hub.docker.com/r/geosysx/g
 
 ## How to run
 ```
-docker run -it geosysx/geostack-service
+docker run -it geosysx/geostack
 ```
