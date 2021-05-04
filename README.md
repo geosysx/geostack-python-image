@@ -1,4 +1,6 @@
-# geostack-service
+# geostack-python-image
+
+Available on Docker Hub as [geosysx/geostack](https://hub.docker.com/r/geosysx/geostack).
 
 
 ## How to build
