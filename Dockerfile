@@ -13,13 +13,10 @@ ENV PATH /opt/conda/envs/env/bin:$PATH
 SHELL ["conda", "run", "-n", "geostack", "/bin/bash", "-c"]
 
 # Install geostack 
-RUN conda config --add channels conda-forge 
-RUN conda config --append channels geostack 
-RUN conda install -c geostack geostack 
-RUN python -c "import geostack"
+RUN conda config --add channels conda-forge && \
+  conda config --append channels geostack && \
+  conda install -c geostack geostack
 
-#RUN python -c "import geostack"
-#
-# The code to run when the container is started
+# Container startup code 
 COPY run.py .
 ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "geostack", "python", "run.py"]
