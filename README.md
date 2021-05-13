@@ -11,5 +11,5 @@
 
 ## How to run
 ```
-docker run -it geosysx/geostack
+docker run --rm -it --name=geosysx-geostack geosysx/geostack
 ```
