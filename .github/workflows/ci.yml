@@ -51,7 +51,6 @@ jobs:
         if: steps.semantic.outputs.new_release_published == 'true'
         with:
           context: .
-          load: true
           push: true
           tags: geosysx/geostack:latest, geosysx/geostack:${{ steps.semantic.outputs.new_release_version }}
           cache-from: type=local,src=/tmp/.buildx-cache
