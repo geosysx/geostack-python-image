@@ -34,12 +34,12 @@ jobs:
         with:
           context: .
           load: true
-          tags: geosysx/geostack:latest
+          tags: geostack/geostack-python:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
       -
         name: Inspect
-        run:  docker image inspect geosysx/geostack:latest
+        run:  docker image inspect geostack/geostack-python:latest
       -
         name: Run semantic-release
         uses: cycjimmy/semantic-release-action@v2
@@ -60,7 +60,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: geosysx/geostack:latest, geosysx/geostack:${{ steps.semantic.outputs.new_release_version }}
+          tags: geostack/geostack-python:latest, geostack/geostack-python:${{ steps.semantic.outputs.new_release_version }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
       -
