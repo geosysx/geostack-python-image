@@ -5,8 +5,8 @@ on:
       - "**"
 
 jobs:
-  release:
-    name: release
+  ci:
+    name: ci
     runs-on: ubuntu-latest
     steps:
       -
