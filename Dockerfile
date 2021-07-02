@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y \
   opencl-headers libpocl2
 
 # Create the environment
-ADD https://gitlab.com/geostack/library/-/wikis/uploads/c32d9c69086f9bd7d8605819ae97b7a4/environment.yml .
+# ADD https://gitlab.com/geostack/library/-/wikis/uploads/c32d9c69086f9bd7d8605819ae97b7a4/environment.yml .
 RUN conda env create -f environment.yml
 
 # Use the environment at startup (https://medium.com/@chadlagore/conda-environments-with-docker-82cdc9d25754)

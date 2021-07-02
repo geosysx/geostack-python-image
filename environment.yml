@@ -1,0 +1,15 @@
+name: geostack
+channels:
+    - conda-forge
+    - default
+dependencies:
+    - python=3.7.3
+    - cython
+    - numpy
+    - gdal>2.4.1
+    - pyproj
+    - netcdf4
+    - fsspec
+    - pip
+    - pip:
+        - git+https://bitbucket.csiro.au/scm/sc/tds-client-python.git
