@@ -31,7 +31,7 @@ RUN ./l_opencl_p_18.1.0.015/install.sh -s ./Dockerfile_Intel_18.1.cfg
 RUN rm -rf ./l_opencl_p_18.1.0.015
 
 # Create the environment
-ADD https://gitlab.com/geostack/library/-/wikis/uploads/c32d9c69086f9bd7d8605819ae97b7a4/environment.yml .
+ADD https://gitlab.com/geostack/library/-/wikis/uploads/91ab72578e76062dd75289124fb6d844/environment.yml .
 ADD https://raw.githubusercontent.com/geosysx/geostack-python-image/776b31948174d9fd0f04381672ea6fb4dd7e5068/environment.yml .
 RUN conda env create -f environment.yml
 
