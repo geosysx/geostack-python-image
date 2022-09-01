@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 WORKDIR /app
 
 # Refresh and install packages
@@ -24,11 +24,17 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 
 # Install Nvidia OpenCL driver
 RUN curl -H "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36" \
-             https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-repo-ubuntu1804_10.2.89-1_amd64.deb \
-             --output /tmp/cuda-repo-ubuntu1804_10.2.89-1_amd64.deb
-RUN dpkg -i /tmp/cuda-repo-ubuntu1804_10.2.89-1_amd64.deb
-RUN apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
-RUN rm -f /tmp/cuda-repo-ubuntu1804_10.2.89-1_amd64.deb
+    https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin \
+    --output /tmp/cuda-ubuntu2004.pin
+RUN mkdir -p /etc/apt/preferences.d
+RUN mv /tmp/cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
+RUN curl -H "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36" \
+    https://developer.download.nvidia.com/compute/cuda/11.4.2/local_installers/cuda-repo-ubuntu2004-11-4-local_11.4.2-470.57.02-1_amd64.deb \
+    --output /tmp/cuda-repo-ubuntu2004-11-4-local_11.4.2-470.57.02-1_amd64.deb
+RUN dpkg -i /tmp/cuda-repo-ubuntu2004-11-4-local_11.4.2-470.57.02-1_amd64.deb
+RUN apt-key adv --fetch-keys /var/cuda-repo-ubuntu2004-11-4-local/7fa2af80.pub
+RUN apt-key add /var/cuda-repo-ubuntu2004-11-4-local/7fa2af80.pub
+RUN rm -f /tmp/cuda-repo-ubuntu2004-11-4-local_11.4.2-470.57.02-1_amd64.deb
 RUN apt-get update
 RUN apt-get install -y cuda-drivers
 
