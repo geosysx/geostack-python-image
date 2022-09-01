@@ -1,0 +1,52 @@
+FROM ubuntu:20.04
+WORKDIR /app
+
+# Refresh and install packages
+RUN apt update
+RUN apt-get install -y wget
+
+RUN apt-get -qq update && apt-get -qq -y install curl bzip2 \
+    && curl -sSL https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -o /tmp/miniconda.sh \
+    && bash /tmp/miniconda.sh -bfp /usr/local \
+    && rm -rf /tmp/miniconda.sh \
+    && conda install -y python=3 \
+    && conda update conda \
+    && apt-get -qq -y remove curl bzip2 \
+    && apt-get -qq -y autoremove \
+    && apt-get autoclean \
+    && rm -rf /var/lib/apt/lists/* /var/log/dpkg.log \
+    && conda clean --all --yes
+
+ENV PATH /opt/conda/bin:$PATH
+
+# Refresh and install packages
+RUN apt update
+RUN apt-get install -y cpio git
+
+# Install Intel 18.1 OpenCL driver
+COPY Dockerfile_Intel_18.1.cfg .
+RUN wget https://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/15532/l_opencl_p_18.1.0.015.tgz
+RUN tar xvfz ./l_opencl_p_18.1.0.015.tgz
+RUN ./l_opencl_p_18.1.0.015/install.sh -s ./Dockerfile_Intel_18.1.cfg
+RUN rm -rf ./l_opencl_p_18.1.0.015
+
+# Create the environment
+ADD https://gitlab.com/geostack/library/-/wikis/uploads/91ab72578e76062dd75289124fb6d844/environment.yml .
+ADD https://raw.githubusercontent.com/geosysx/geostack-python-image/776b31948174d9fd0f04381672ea6fb4dd7e5068/environment.yml .
+RUN conda env create -f environment.yml
+
+# Use the environment at startup (https://medium.com/@chadlagore/conda-environments-with-docker-82cdc9d25754)
+RUN echo "source activate geostack" > ~/.bashrc
+ENV PATH /opt/conda/envs/env/bin:$PATH
+
+# Make RUN commands use the new environment (https://pythonspeed.com/articles/activate-conda-dockerfile/#working)
+SHELL ["conda", "run", "-n", "geostack", "/bin/bash", "-c"]
+
+# Install geostack
+RUN conda config --add channels conda-forge
+RUN conda config --append channels geostack
+RUN conda install -c geostack geostack
+
+# Container startup code
+COPY run.py .
+ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "geostack", "python", "run.py"]

@@ -3,13 +3,10 @@ channels:
     - conda-forge
     - default
 dependencies:
-    - python=3.7.3
-    - cython
+    - python
     - numpy
-    - gdal>2.4.1
-    - pyproj
+    - gdal
     - netcdf4
-    - fsspec
+    - libspatialite
+    - git
     - pip
-    - pip:
-        - git+https://bitbucket.csiro.au/scm/sc/tds-client-python.git

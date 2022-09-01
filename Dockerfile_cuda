@@ -1,0 +1,60 @@
+FROM ubuntu:20.04
+WORKDIR /app
+
+# Refresh and install packages
+RUN apt update
+
+RUN apt-get -qq update && apt-get -qq -y install curl bzip2 gnupg git \
+    && curl -sSL https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -o /tmp/miniconda.sh \
+    && bash /tmp/miniconda.sh -bfp /usr/local \
+    && rm -rf /tmp/miniconda.sh \
+    && conda install -y python=3 \
+    && conda update conda \
+    && apt-get -qq -y remove bzip2 \
+    && apt-get -qq -y autoremove \
+    && apt-get autoclean \
+    && rm -rf /var/lib/apt/lists/* /var/log/dpkg.log \
+    && conda clean --all --yes
+
+ENV PATH /opt/conda/bin:$PATH
+
+# Refresh and install packages
+RUN apt update
+RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+
+# Install Nvidia OpenCL driver
+RUN curl -H "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36" \
+    https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin \
+    --output /tmp/cuda-ubuntu2004.pin
+RUN mkdir -p /etc/apt/preferences.d
+RUN mv /tmp/cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
+RUN curl -H "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36" \
+    https://developer.download.nvidia.com/compute/cuda/11.4.2/local_installers/cuda-repo-ubuntu2004-11-4-local_11.4.2-470.57.02-1_amd64.deb \
+    --output /tmp/cuda-repo-ubuntu2004-11-4-local_11.4.2-470.57.02-1_amd64.deb
+RUN dpkg -i /tmp/cuda-repo-ubuntu2004-11-4-local_11.4.2-470.57.02-1_amd64.deb
+RUN apt-key adv --fetch-keys /var/cuda-repo-ubuntu2004-11-4-local/7fa2af80.pub
+RUN apt-key add /var/cuda-repo-ubuntu2004-11-4-local/7fa2af80.pub
+RUN rm -f /tmp/cuda-repo-ubuntu2004-11-4-local_11.4.2-470.57.02-1_amd64.deb
+RUN apt-get update
+RUN apt-get install -y cuda-drivers
+
+# Create the environment
+ADD https://gitlab.com/geostack/library/-/wikis/uploads/91ab72578e76062dd75289124fb6d844/environment.yml .
+ADD https://raw.githubusercontent.com/geosysx/geostack-python-image/776b31948174d9fd0f04381672ea6fb4dd7e5068/environment.yml .
+RUN conda env create -f environment.yml
+
+# Use the environment at startup (https://medium.com/@chadlagore/conda-environments-with-docker-82cdc9d25754)
+RUN echo "source activate geostack" > ~/.bashrc
+ENV PATH /opt/conda/envs/env/bin:$PATH
+
+# Make RUN commands use the new environment (https://pythonspeed.com/articles/activate-conda-dockerfile/#working)
+SHELL ["conda", "run", "-n", "geostack", "/bin/bash", "-c"]
+
+# Install geostack
+RUN conda config --add channels conda-forge
+RUN conda config --append channels geostack
+RUN conda install -c geostack geostack
+
+# Container startup code
+COPY run.py .
+ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "geostack", "python", "run.py"]
